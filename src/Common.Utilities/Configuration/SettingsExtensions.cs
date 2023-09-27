@@ -1,17 +1,16 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 
-namespace Common.Utilities.Configuration
+namespace Common.Utilities.Configuration;
+
+public static class SettingsExtensions
 {
-    public static class SettingsExtensions
+    public static TSettings ToSettings<TSettings>(this IConfiguration configuration, string applicationName)
     {
-        public static TSettings ToSettings<TSettings>(this IConfiguration configuration, string applicationName)
-        {
-            var settings = Activator.CreateInstance<TSettings>();
+        var settings = Activator.CreateInstance<TSettings>();
 
-            configuration.Bind(settings);
+        configuration.Bind(settings);
 
-            return settings;
-        }
+        return settings;
     }
 }

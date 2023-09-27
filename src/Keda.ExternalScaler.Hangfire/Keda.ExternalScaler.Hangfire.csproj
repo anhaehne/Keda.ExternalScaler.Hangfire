@@ -2,36 +2,22 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net7</TargetFramework>
     <AssemblyName>HangfireExternalScaler</AssemblyName>
     <RootNamespace>HangfireExternalScaler</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.29.0" />
-    <PackageReference Include="HangFire.Core" Version="1.7.11" />
-    <PackageReference Include="HangFire.SqlServer" Version="1.7.11" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Yaml" Version="2.0.0-preview2" />
-    <PackageReference Include="serilog" Version="2.9.0" />
-    <PackageReference Include="serilog.enrichers.environment" Version="2.1.3" />
-    <PackageReference Include="serilog.enrichers.process" Version="2.0.1" />
-    <PackageReference Include="serilog.enrichers.thread" Version="3.1.0" />
-    <PackageReference Include="serilog.sinks.console" Version="3.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Common.Utilities\Common.Utilities.csproj" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
+	<PackageReference Include="Hangfire.Core" Version="1.8.*" />
+	<PackageReference Include="Hangfire.SqlServer" Version="1.8.*" />
+	<PackageReference Include="Hangfire.AspNetCore" Version="1.8.*" />
+	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="Protos\externalscaler.proto" GrpcServices="Both" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="settings.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

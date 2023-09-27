@@ -1,37 +1,29 @@
-﻿using System;
-using Common.Utilities.Configuration;
-using HangfireExternalScaler.Configuration;
-using Microsoft.Extensions.Hosting;
-using Serilog;
+﻿using Hangfire;
+using HangfireExternalScaler.Interceptors;
+using HangfireExternalScaler.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace HangfireExternalScaler
-{
-    internal class Program
-    {
-        public const string ApplicationName = "Keda.ExternalScaler.Hangfire";
-        public const string BuildVersion = "1.3";
+var builder = WebApplication.CreateBuilder(args);
 
-        static void Main(string[] args)
-        {
-            var applicationConfiguration = new ApplicationConfiguration(args, ApplicationName).CreateBuilder().Build();
-
-            ISettings settings = applicationConfiguration.ToSettings<Settings>(ApplicationName);
-
-            Log.Logger = SerilogConfiguration.Create(ApplicationName, settings.MinimumLogLevel,
-                settings.HttpLogEndpoint);
-
-            if (settings.HangfireSqlInstances == null)
+builder.Services.AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+builder.Services.AddScoped(s => s.GetRequiredService<JobStorage>().GetMonitoringApi());
+builder.Services.AddGrpc(
+            options =>
             {
-                Log.Error("There are no hangfire instances defined in configuration");
-                Environment.Exit(-1);
-            }
+                options.Interceptors.Add<ExceptionInterceptor>();
+            });
 
-            Log.Information("Starting {ApplicationName} v{BuildVersion}", ApplicationName, BuildVersion);
+var app = builder.Build();
 
-            var applicationHostBuilder = new ApplicationHostBuilder(args, settings);
+app.UseRouting();
+app.MapGrpcService<ExternalScalerService>();
+app.MapGet("/", async context => await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909"));
 
-            var hostBuilder = applicationHostBuilder.Create();
-            hostBuilder.Build().Run();
-        }
-    }
-}
+app.Run();

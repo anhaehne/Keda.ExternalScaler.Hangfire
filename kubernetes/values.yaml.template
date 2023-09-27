@@ -1,4 +1,0 @@
-#@data/values
----
-container_registry: <YOUR_CONTAINER_REGISTRY_HERE eg foo.azurecr.io>
-sql_server_loadbalancer_ip: <LOADBALANCER_STATIC_IP>
