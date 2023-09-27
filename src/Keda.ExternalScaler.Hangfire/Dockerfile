@@ -1,8 +1,12 @@
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.1-alpine
+# https://hub.docker.com/_/microsoft-dotnet
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /source
+COPY . .
+RUN dotnet publish -c release -o /app
 
+# final stage/image
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
 EXPOSE 80
-EXPOSE 443
-
 WORKDIR /app
-COPY [".", "."]
-ENTRYPOINT ["dotnet", "HangfireExternalScaler.dll"]
+COPY --from=build /app ./
+ENTRYPOINT ["dotnet", "Keda.ExternalScaler.Hangfire.dll"]
